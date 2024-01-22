@@ -5,14 +5,35 @@
     Configurar un servicio web usando SOAP para insertar categorias en una base de datos
 */
 
+// Permitir solicitudes de cualquier origen
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Headers: Content-Type');
+
+
+
 // Ruta de la clase econea/nusoap
 require_once 'vendor/econea/nusoap/src/nusoap.php';
+require_once 'models/Usuario.php';
 
 class MySoapServer extends soap_server {
     public $schemaTargetNameSpace;
 
     public function __construct() {
         parent::__construct();
+        $this->handleGETRequest();
+    }
+
+    private function handleGETRequest() {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            // Supongamos que se quiere obtener información de un usuario específico
+            if (isset($_GET['action']) && $_GET['action'] == 'obtenerUsuario' && isset($_GET['id'])) {
+                $usuario = new Usuario();
+                $resultado = $usuario->get_usuario($_GET['id']);
+                echo json_encode($resultado);
+                exit(); // Finaliza la ejecución después de manejar la solicitud GET
+            }
+        }
     }
 }
 
