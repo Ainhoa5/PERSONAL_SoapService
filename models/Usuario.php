@@ -18,13 +18,12 @@ class Usuario extends Conectar
         $stmt->bindValue(3, $usu_correo);
         $stmt->execute();
     }
-    public function get_usuario($id) {
+    public function get_usuarios() {
         $conectar = parent::conexion();
         parent::set_name();
-        $sql = "SELECT * FROM tm_usuario WHERE usu_id = ?";
+        $sql = "SELECT * FROM tm_usuario";
         $stmt = $conectar->prepare($sql);
-        $stmt->bindValue(1, $id);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC); // Devuelve los datos del usuario
+        return $stmt->fetchAll(PDO::FETCH_ASSOC); // Devuelve todos los usuarios
     }
 }

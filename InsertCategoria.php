@@ -11,29 +11,17 @@ header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 
-
 // Ruta de la clase econea/nusoap
 require_once 'vendor/econea/nusoap/src/nusoap.php';
 require_once 'models/Usuario.php';
 
-class MySoapServer extends soap_server {
+class MySoapServer extends soap_server
+{
     public $schemaTargetNameSpace;
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
-        $this->handleGETRequest();
-    }
-
-    private function handleGETRequest() {
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            // Supongamos que se quiere obtener información de un usuario específico
-            if (isset($_GET['action']) && $_GET['action'] == 'obtenerUsuario' && isset($_GET['id'])) {
-                $usuario = new Usuario();
-                $resultado = $usuario->get_usuario($_GET['id']);
-                echo json_encode($resultado);
-                exit(); // Finaliza la ejecución después de manejar la solicitud GET
-            }
-        }
     }
 }
 
@@ -101,7 +89,8 @@ $server->register(
 );
 
 /* Aquí se crearia el insert a la database */
-function InsertCategoriaService($request){
+function InsertCategoriaService($request)
+{
     require_once 'config/conexion.php';
     require_once 'models/Usuario.php';
 
@@ -112,12 +101,28 @@ function InsertCategoriaService($request){
     );
 }
 
+// Registra el nuevo servicio en el servidor SOAP
+$server->register(
+    "GetAllUsuariosService",
+    array(), // Sin parámetros de entrada
+    array('return' => 'xsd:string'), // Tipo de retorno como cadena (string)
+    $namespace
+);
+function GetAllUsuariosService() {
+    require_once 'config/conexion.php';
+    require_once 'models/Usuario.php';
+
+    $usuario = new Usuario();
+    $resultados = $usuario->get_usuarios();
+    return json_encode($resultados); // Convierte el resultado en JSON
+}
+
 // Manejo de Solicitudes
 /* 
     Aquí se lee la entrada de datos RAW (datos enviados al servidor) 
     y se pasa a la función service del servidor SOAP para procesar la solicitud.
  */
-$POST_DATA = file_get_contents("php://input"); 
+$POST_DATA = file_get_contents("php://input");
 $server->service($POST_DATA);
 
 exit();
