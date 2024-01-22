@@ -25,7 +25,7 @@ print("Request : <br>");
 print("<pre>".htmlentities($request)."</pre>");
 
 // Define la acción que se está realizando
-$action = "InsertCategoriaService";
+$action = "GetAllUsuariosService";
 // Un array que contiene varios encabezados HTTP necesarios para la solicitud
 $headers = [
     'Method: POST',

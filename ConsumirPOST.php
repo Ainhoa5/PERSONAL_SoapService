@@ -1,6 +1,6 @@
 <?php 
 /* 
-    In /Consumir.php
+    In /ConsumirPOST.php
     consumir un servicio web SOAP. Utiliza cURL, 
     una biblioteca en PHP que permite realizar solicitudes HTTP, 
     para enviar una solicitud SOAP a un servicio web y recibir una respuesta
