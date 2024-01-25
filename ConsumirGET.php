@@ -1,51 +1,54 @@
-<?php 
-/* 
-    In /ConsumirGET.php
-    consumir un servicio web SOAP. Utiliza cURL, 
-    una biblioteca en PHP que permite realizar solicitudes HTTP, 
-    para enviar una solicitud SOAP a un servicio web y recibir una respuesta
-*/
+<?php
+/**
+ * /ConsumirGET.php
+ * Consumes a SOAP web service using cURL, 
+ * a PHP library that allows making HTTP requests, 
+ * to send a SOAP request to a web service and receive a response.
+ */
 
-// Especifica la URL del servicio web SOAP al que se enviará la solicitud
+/**
+ * Specifies the URL of the SOAP web service to which the request will be sent.
+ */
 $location = "http://localhost/projects/PERSONAL_SoapService/InsertCategoria.php?wsdl";
 
-// Contiene el cuerpo de la solicitud SOAP formateado como XML
-$request = "
-<soapenv:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ins=\"InsertCategoriaSOAP\">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <ins:GetAllUsuariosService soapenv:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">
-      </ins:GetAllUsuariosService>
-   </soapenv:Body>
-</soapenv:Envelope>
-";
 
-// Se imprime la solicitud SOAP en formato legible para fines de depuración 
-print("Request : <br>");
-print("<pre>".htmlentities($request)."</pre>");
+/**
+ * Contains the parameters of the SOAP request.
+ * For GET, these are typically query string parameters added to the URL.
+ */
+$queryString = http_build_query([
+   // Aquí agregarías los parámetros necesarios para tu solicitud SOAP
+   'action' => 'GetAllUsuariosService'
+]);
 
-// Define la acción que se está realizando
-$action = "GetAllUsuariosService";
-// Un array que contiene varios encabezados HTTP necesarios para la solicitud
+$locationWithQuery = $location . '&' . $queryString;
+
+/**
+ * An array containing several HTTP headers necessary for the request.
+ */
 $headers = [
-    'Method: POST',
+    'Method: GET',
     'Connection: Keep-Alive',
     'User-Agent: PHP-SOAP-CURL',
     'Content-Type: text/xml; charset=utf-8',
-    'SOAPAction: "guardarSoapService"',
 ];
 
-// Segun la documentacion
-$ch = curl_init($location); // Se inicializa cURL con curl_init($location) apuntando a la URL del servicio SOAP
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // para devolver el resultado como string
-curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); // para establecer los encabezados HTTP
-curl_setopt($ch, CURLOPT_POST, true); // para enviar los datos de la solicitud
-curl_setopt($ch, CURLOPT_POSTFIELDS, $request); // para enviar los datos de la solicitud
-curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1); // para definir la versión HTTP
+/**
+ * Initializes cURL with curl_init($locationWithQuery) pointing to the SOAP service URL with the query string.
+ * Sets various cURL options for sending the request.
+ */
+$ch = curl_init($locationWithQuery);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // To return the result as a string
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); // To set the HTTP headers
+curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1); // To define the HTTP version
 
-$response = curl_exec($ch); // Ejecuta la solicitud cURL y guarda la respuesta
-$err_status = curl_errno($ch); // Verifica si hubo algún error durante la ejecución de cURL y almacena el estado en $err_status
+/**
+ * Executes the cURL request and saves the response.
+ * Checks for any errors that occurred during the cURL execution and stores the status in $err_status.
+ */
+$response = curl_exec($ch);
+$err_status = curl_errno($ch);
 
-// Se imprime la respuesta recibida del servidor SOAP para propósitos de depuración
+// Print the response received from the SOAP server for debugging purposes
 print("Request : <br>");
-print("<pre>".$response."</pre>");
+print("<pre>" . $response . "</pre>");

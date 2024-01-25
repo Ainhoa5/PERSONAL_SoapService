@@ -1,51 +1,54 @@
 <?php
+/**
+ * InsertCategoria.php
+ * Configures and handles a SOAP server for inserting categories into a database.
+ * This script sets up the SOAP server, registers available services,
+ * and processes incoming SOAP requests.
+ */
 
-/* 
-    In /InsertCategoria.php
-    Configurar un servicio web usando SOAP para insertar categorias en una base de datos
-*/
-
-// Permitir solicitudes de cualquier origen
+// Allow requests from any origin (CORS headers)
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-
-// Ruta de la clase econea/nusoap
+// Include the nusoap class and User model
 require_once 'vendor/econea/nusoap/src/nusoap.php';
 require_once 'models/Usuario.php';
 
+/**
+ * MySoapServer class extends the functionality of the nusoap's soap_server.
+ * It is used to configure and handle the SOAP server operations for the application.
+ */
 class MySoapServer extends soap_server
 {
+    /**
+     * @var string The target namespace for the WSDL schema.
+     */
     public $schemaTargetNameSpace;
 
+    /**
+     * Constructor for MySoapServer.
+     * Initializes the parent soap_server class.
+     */
     public function __construct()
     {
         parent::__construct();
     }
 }
 
-// Configuración inicial del servidor SOAP
-/* 
-    Se crea un nuevo servidor SOAP y se configura con WSDL (Web Services Description Language), 
-    que es un lenguaje basado en XML para describir servicios web. 
-    InsertCategoria es el nombre del servicio, 
-    y namespace proporciona un espacio de nombres único para identificar los elementos WSDL.
-*/
-// Nombre del servicio
+// Service name for the SOAP server
 $namespace = "InsertCategoriaSOAP";
 $server = new MySoapServer();
+// Initial configuration of the SOAP server using WSDL
 $server->configureWSDL("InsertCategoria", $namespace);
 $server->schemaTargetNameSpace = $namespace;
 
 
-/* 
-    Aquí se define la estructura de los datos que el servicio va a recibir 
-    (usu_nom, usu_ape, usu_correo) 
-    y la estructura de la respuesta (Resultado). 
-    Estos tipos complejos son estructuras personalizadas para enviar y recibir datos.
-*/
-// Estructura del servicio
+/**
+ * Defines the data structure that the service will receive (usu_nom, usu_ape, usu_correo)
+ * and the structure of the response (Result). These complex types are custom structures
+ * for sending and receiving data.
+ */
 $server->wsdl->addComplexType(
     'InsertCategoria',
     'complexType',
@@ -72,11 +75,10 @@ $server->wsdl->addComplexType(
 );
 
 
-/* 
-    Esta parte registra el método InsertCategoriaService como un servicio disponible en el servidor SOAP. 
-    Define la entrada y salida del servicio, 
-    usando los tipos complejos definidos anteriormente.
-*/
+/**
+ * Registers the InsertCategoriaService as a service available on the SOAP server.
+ * Defines the input and output of the service, using the previously defined complex types.
+ */
 $server->register(
     "InsertCategoriaService",
     array("InsertCategoria" => "tns:InsertCategoria"), // entrada
@@ -88,7 +90,13 @@ $server->register(
     "Inserta una categoria"
 );
 
-/* Aquí se crearia el insert a la database */
+/**
+ * Function to handle the InsertCategoriaService SOAP operation.
+ * It inserts a new user into the database using the provided request parameters.
+ *
+ * @param array $request The request parameters for the user to be added.
+ * @return array An array containing the result of the operation.
+ */
 function InsertCategoriaService($request)
 {
     require_once 'config/conexion.php';
@@ -101,14 +109,25 @@ function InsertCategoriaService($request)
     );
 }
 
-// Registra el nuevo servicio en el servidor SOAP
+/**
+ * Registers the GetAllUsuariosService as a new service on the SOAP server.
+ * This service takes no input parameters and returns a string type as output.
+ */
 $server->register(
     "GetAllUsuariosService",
     array(), // Sin parámetros de entrada
     array('return' => 'xsd:string'), // Tipo de retorno como cadena (string)
     $namespace
 );
-function GetAllUsuariosService() {
+
+/**
+ * Handles the GetAllUsuariosService SOAP operation.
+ * Retrieves all users from the database and returns them as a JSON string.
+ *
+ * @return string A JSON-encoded string representing all users.
+ */
+function GetAllUsuariosService()
+{
     require_once 'config/conexion.php';
     require_once 'models/Usuario.php';
 
@@ -117,10 +136,9 @@ function GetAllUsuariosService() {
     return json_encode($resultados); // Convierte el resultado en JSON
 }
 
-// Manejo de Solicitudes
-/* 
-    Aquí se lee la entrada de datos RAW (datos enviados al servidor) 
-    y se pasa a la función service del servidor SOAP para procesar la solicitud.
+/**
+ * Handles incoming RAW data (sent to the server) and passes it to the SOAP server's
+ * service function for processing the request.
  */
 $POST_DATA = file_get_contents("php://input");
 $server->service($POST_DATA);
